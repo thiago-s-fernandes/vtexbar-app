@@ -12,15 +12,21 @@ PLIST_PATH="$HOME/Library/LaunchAgents/$PLIST_LABEL.plist"
 
 echo "==> Uninstalling $APP_NAME..."
 
-# 1. Stop and remove LaunchAgent
+# 1. Stop and remove LaunchAgents
 if [ -f "$PLIST_PATH" ]; then
     launchctl unload "$PLIST_PATH" 2>/dev/null || true
     rm -f "$PLIST_PATH"
 fi
+LEGACY_PLIST="$HOME/Library/LaunchAgents/com.user.vtexbar.plist"
+if [ -f "$LEGACY_PLIST" ]; then
+    launchctl unload "$LEGACY_PLIST" 2>/dev/null || true
+    rm -f "$LEGACY_PLIST"
+fi
 
 # 2. Terminate running process
-pkill -f "$APP_NAME" 2>/dev/null || true
-pkill -f "vtexbar" 2>/dev/null || true
+pkill -9 -f "$APP_NAME" 2>/dev/null || true
+pkill -9 -f "vtexbar" 2>/dev/null || true
+
 
 # 3. Remove application bundle
 if [ -d "$APP_PATH" ]; then

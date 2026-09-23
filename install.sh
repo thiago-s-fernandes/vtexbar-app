@@ -32,9 +32,15 @@ if ! curl -fsSL "$ZIP_URL" -o "$TMP_DIR/VTEX-Bar.zip"; then
     echo "Please download manually from https://github.com/$REPO/releases"
     exit 1
 fi
+# 1. Clean up legacy or running instances
+echo "==> Cleaning up any existing instances..."
+launchctl unload "$HOME/Library/LaunchAgents/com.user.vtexbar.plist" 2>/dev/null || true
+rm -f "$HOME/Library/LaunchAgents/com.user.vtexbar.plist"
+launchctl unload "$PLIST_PATH" 2>/dev/null || true
+pkill -9 -f "vtexbar" 2>/dev/null || true
+pkill -9 -f "$APP_NAME" 2>/dev/null || true
 
 echo "==> Extracting to $INSTALL_DIR..."
-pkill -f "$APP_NAME" 2>/dev/null || true
 rm -rf "$APP_PATH"
 unzip -q "$TMP_DIR/VTEX-Bar.zip" -d "$INSTALL_DIR"
 rm -rf "$TMP_DIR"
@@ -43,7 +49,7 @@ rm -rf "$TMP_DIR"
 echo "==> Clearing quarantine attributes..."
 xattr -cr "$APP_PATH" 2>/dev/null || true
 
-# 3. Configure LaunchAgent for automatic startup
+# 3. Configure LaunchAgent for automatic startup at login
 echo "==> Configuring automatic startup at login..."
 mkdir -p "$HOME/Library/LaunchAgents"
 
@@ -60,8 +66,6 @@ cat <<EOF > "$PLIST_PATH"
     </array>
     <key>RunAtLoad</key>
     <true/>
-    <key>KeepAlive</key>
-    <true/>
     <key>StandardOutPath</key>
     <string>/tmp/vtexbar.out</string>
     <key>StandardErrorPath</key>
@@ -70,15 +74,14 @@ cat <<EOF > "$PLIST_PATH"
 </plist>
 EOF
 
+# 4. Launch Application via LaunchAgent
+echo "==> Launching $APP_NAME..."
 launchctl unload "$PLIST_PATH" 2>/dev/null || true
 launchctl load "$PLIST_PATH" 2>/dev/null || true
-
-# 4. Launch Application
-echo "==> Launching $APP_NAME..."
-open "$APP_PATH"
 
 echo ""
 echo "===================================================="
 echo " VTEX Bar installed and running successfully!"
 echo " Look for the VTEX logo in your macOS menu bar."
 echo "===================================================="
+
