@@ -1,6 +1,6 @@
 cask "vtexbar" do
   version "1.0.0"
-  sha256 "b673b07a4b6ae4e4a0e1003cbdf14595fef19fbc02678ad018d7e04ba0decc00"
+  sha256 "d0c141cb58aa2c7866eea7e473ff25683cb3d5f99062dfbc37f580605b0afc59"
 
   url "https://github.com/thiago-s-fernandes/vtexbar-app/releases/download/v#{version}/VTEX-Bar.dmg"
   name "VTEX Bar"
